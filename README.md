@@ -6,7 +6,7 @@ Simple class for making requests to the Twitter API.  Not affiliated with Twitte
 ## Usage
 
 ```php
-use cjrasmussen\TwitterApi;
+use cjrasmussen\TwitterApi\TwitterApi;
 
 $twitter = new TwitterApi($consumer_key, $consumer_secret);
 
