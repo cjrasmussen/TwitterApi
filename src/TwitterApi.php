@@ -163,7 +163,7 @@ class TwitterApi
 
 		$string = '';
 		for ($n = 0; $n < 32; $n++) {
-			$index = random_int(0, count($options));
+			$index = random_int(0, (count($options) - 1));
 			$string .= $options[$index];
 		}
 
