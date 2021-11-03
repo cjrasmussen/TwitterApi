@@ -37,7 +37,7 @@ class TwitterApi
 	 * @param string|null $secret
 	 * @throws Exception
 	 */
-	public function auth($type, $token, $secret = null): void
+	public function auth(int $type, string $token, ?string $secret = null): void
 	{
 		if ($type === self::AUTH_TYPE_OAUTH) {
 			$this->user_token = $token;
@@ -62,7 +62,7 @@ class TwitterApi
 	 *
 	 * @param int $type
 	 */
-	public function set_auth_type($type): void
+	public function set_auth_type(int $type): void
 	{
 		$this->auth_type = $type;
 	}
@@ -77,7 +77,7 @@ class TwitterApi
 	 * @param bool $multipart
 	 * @return mixed|object
 	 */
-	public function request($type, $request, array $args = [], $body = null, $multipart = false)
+	public function request(string $type, string $request, array $args = [], ?string $body = null, bool $multipart = false)
 	{
 		$this->args = (is_array($args)) ? $args : [$args];
 		$domain = (strpos($request, 'upload') !== false) ? 'https://upload.twitter.com/' : 'https://api.twitter.com/';
@@ -94,7 +94,7 @@ class TwitterApi
 			unset($this->oauth['oauth_token']);
 		}
 
-		if (($type === 'GET') AND (count($this->args))) {
+		if (($type === 'GET') && (count($this->args))) {
 			$full_url .= '?' . http_build_query($this->args);
 		}
 
@@ -178,7 +178,7 @@ class TwitterApi
 	 * @param bool $multipart
 	 * @return string
 	 */
-	private function build_oauth_base_string($type, $url, $multipart = false): string
+	private function build_oauth_base_string(string $type, string $url, bool $multipart = false): string
 	{
 		$query_string = parse_url($url, PHP_URL_QUERY);
 		parse_str($query_string, $query_string_args);
@@ -198,7 +198,7 @@ class TwitterApi
 
 		$data = [];
 		foreach ($incoming AS $key => $val) {
-			if ((is_string($val)) OR (is_int($val))) {
+			if ((is_string($val)) || (is_int($val))) {
 				$data[] = rawurlencode($key) . '=' . rawurlencode($val);
 			}
 		}
