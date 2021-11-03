@@ -3,6 +3,7 @@ namespace cjrasmussen\TwitterApi;
 
 use Exception;
 use RuntimeException;
+use stdClass;
 
 /**
  * Class for interacting with the Twitter API
@@ -139,12 +140,19 @@ class TwitterApi
 		}
 
 		$data = curl_exec($c);
-		curl_close($c);
 
-		$return = json_decode($data, false);
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			throw new RuntimeException('API response was not valid JSON');
+		if ($data) {
+			$return = json_decode($data, false);
+			if (json_last_error() !== JSON_ERROR_NONE) {
+				throw new RuntimeException('API response was not valid JSON');
+			}
+		} else {
+			// THE TWITTER API HAS A COUPLE CALLS THAT DON'T RETURN ANYTHING, RELYING INSTEAD ON THE HTTP RESPONSE CODE
+			$return = new stdClass();
+			$return->http_status = curl_getinfo($c, CURLINFO_HTTP_CODE);
 		}
+
+		curl_close($c);
 
 		return $return;
 	}
