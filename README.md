@@ -2,7 +2,6 @@
 
 Simple class for making requests to the Twitter API.  Not affiliated with Twitter.
 
-
 ## Usage
 
 ```php
@@ -21,7 +20,7 @@ $response = $twitter->request('POST', '1.1/statuses/update.json', ['status' => '
 
 ## More Examples
 
-More examples, as well as other things I've learned using the Twitter API, are [available at my blog](https://blog.cjr.dev/tag/trello-automation/).
+More examples, as well as other things I've learned using the Twitter API, are [available at my blog](https://cjr.dev/tag/trello-automation/).
 
 ## Installation
 
