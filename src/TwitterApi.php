@@ -78,7 +78,7 @@ class TwitterApi
 	 * @param bool $multipart
 	 * @return mixed|object
 	 */
-	public function request(string $type, string $request, array $args = [], ?string $body = null, bool $multipart = false)
+	public function request(string $type, string $request, array $args = [], ?string $body = null, bool $multipart = false, array $headers = [])
 	{
 		$this->args = (is_array($args)) ? $args : [$args];
 		$domain = (strpos($request, 'upload') !== false) ? 'https://upload.twitter.com/' : 'https://api.twitter.com/';
@@ -103,15 +103,16 @@ class TwitterApi
 			$base_string = $this->build_oauth_base_string($type, $base_url, $multipart);
 			$signing_key = (rawurlencode($this->application_secret) . '&' . rawurlencode($this->user_secret));
 			$this->oauth['oauth_signature'] = base64_encode(hash_hmac('sha1', $base_string, $signing_key, true));
-			$header = [$this->build_oauth_header(), 'Expect:'];
+			$headers[] = $this->build_oauth_header();
+			$headers[] = 'Expect:';
 		} elseif ($this->auth_type === self::AUTH_TYPE_BEARER) {
-			$header = ['Authorization: Bearer ' . $this->bearer_token];
+			$headers[] = ['Authorization: Bearer ' . $this->bearer_token];
 		} else {
-			$header = ['Authorization: Basic ' . base64_encode($this->application_key . ':' . $this->application_secret)];
+			$headers[] = ['Authorization: Basic ' . base64_encode($this->application_key . ':' . $this->application_secret)];
 		}
 
 		$c = curl_init();
-		curl_setopt($c, CURLOPT_HTTPHEADER, $header);
+		curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($c, CURLOPT_HEADER, 0);
 		curl_setopt($c, CURLOPT_VERBOSE, 0);
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
