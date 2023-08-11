@@ -80,6 +80,7 @@ class TwitterApi
 	 */
 	public function request(string $type, string $request, array $args = [], ?string $body = null, bool $multipart = false, array $headers = [])
 	{
+		$request = trim($request, '/');
 		$this->args = (is_array($args)) ? $args : [$args];
 		$domain = (strpos($request, 'upload') !== false) ? 'https://upload.twitter.com/' : 'https://api.twitter.com/';
 		$full_url = $base_url = $domain . $request;
@@ -88,7 +89,7 @@ class TwitterApi
 			$type = 'POST';
 		}
 
-		if ($request === '/oauth/request_token') {
+		if ($request === 'oauth/request_token') {
 			// WE CAN'T HAVE USER DATA FOR THIS CALL, WILL NEED TO RE-AUTH
 			unset($this->user_token);
 			unset($this->user_secret);
