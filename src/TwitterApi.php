@@ -1,9 +1,9 @@
 <?php
+
 namespace cjrasmussen\TwitterApi;
 
 use Exception;
-use RuntimeException;
-use stdClass;
+use JsonException;
 
 /**
  * Class for interacting with the Twitter API
@@ -14,14 +14,17 @@ class TwitterApi
 	public const AUTH_TYPE_BEARER = 2;
 	public const AUTH_TYPE_OAUTH = 3;
 
-	private $application_key;
-	private $application_secret;
-	private $user_token;
-	private $user_secret;
-	private $bearer_token;
-	private $auth_type;
-	private $oauth;
-	private $args;
+	private const TWITTER_API_URL_PRIMARY = 'https://api.twitter.com/';
+	private const TWITTER_API_URL_UPLOAD = 'https://upload.twitter.com/';
+
+	private string $application_key;
+	private string $application_secret;
+	private ?string $user_token;
+	private ?string $user_secret;
+	private ?string $bearer_token;
+	private int $auth_type;
+	private ?array $oauth;
+	private ?array $args;
 
 	public function __construct($application_key, $application_secret)
 	{
@@ -76,13 +79,15 @@ class TwitterApi
 	 * @param array $args
 	 * @param string|null $body
 	 * @param bool $multipart
+	 * @param array $headers
 	 * @return mixed|object
+	 * @throws JsonException
 	 */
 	public function request(string $type, string $request, array $args = [], ?string $body = null, bool $multipart = false, array $headers = [])
 	{
-		$request = trim($request, '/');
+		$request = trim($request, ' /');
 		$this->args = (is_array($args)) ? $args : [$args];
-		$domain = (strpos($request, 'upload') !== false) ? 'https://upload.twitter.com/' : 'https://api.twitter.com/';
+		$domain = (strpos($request, 'upload') !== false) ? self::TWITTER_API_URL_UPLOAD : self::TWITTER_API_URL_PRIMARY;
 		$full_url = $base_url = $domain . $request;
 
 		if ($multipart) {
@@ -149,15 +154,13 @@ class TwitterApi
 			if ($oauth_token_request) {
 				$return = $this->parse_oauth_token_request_response($data);
 			} else {
-				$return = json_decode($data, false);
-				if (json_last_error() !== JSON_ERROR_NONE) {
-					throw new RuntimeException('API response was not valid JSON');
-				}
+				$return = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
 			}
 		} else {
 			// THE TWITTER API HAS A COUPLE CALLS THAT DON'T RETURN ANYTHING, RELYING INSTEAD ON THE HTTP RESPONSE CODE
-			$return = new stdClass();
-			$return->http_status = curl_getinfo($c, CURLINFO_HTTP_CODE);
+			$return = (object)[
+				'http_status' => curl_getinfo($c, CURLINFO_HTTP_CODE),
+			];
 		}
 
 		curl_close($c);
@@ -246,7 +249,7 @@ class TwitterApi
 	 * @param string $response
 	 * @return object
 	 */
-	private function parse_oauth_token_request_response($response): object
+	private function parse_oauth_token_request_response(string $response): object
 	{
 		$return = [];
 		parse_str($response, $return);
