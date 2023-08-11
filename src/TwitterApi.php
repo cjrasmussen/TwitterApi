@@ -19,9 +19,9 @@ class TwitterApi
 
 	private string $application_key;
 	private string $application_secret;
-	private ?string $user_token;
-	private ?string $user_secret;
-	private ?string $bearer_token;
+	private ?string $user_token = null;
+	private ?string $user_secret = null;
+	private ?string $bearer_token = null;
 	private int $auth_type;
 	private ?array $oauth;
 	private ?array $args;
