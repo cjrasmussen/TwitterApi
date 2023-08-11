@@ -98,9 +98,9 @@ class TwitterApi
 			$type = 'POST';
 		}
 
-		$oauth_token_request = ($request === 'oauth/request_token');
+		$oauth_request = (strpos($request, 'oauth/') === 0);
 
-		if ($oauth_token_request) {
+		if ($oauth_request) {
 			// WE CAN'T HAVE USER DATA FOR THIS CALL, WILL NEED TO RE-AUTH
 			$this->user_token = $this->user_secret = null;
 			unset($this->oauth['oauth_token']);
@@ -154,8 +154,8 @@ class TwitterApi
 		$data = curl_exec($c);
 
 		if ($data) {
-			if ($oauth_token_request) {
-				$return = $this->parse_oauth_token_request_response($data);
+			if ($oauth_request) {
+				$return = $this->parse_oauth_request_response($data);
 			} else {
 				$return = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
 			}
@@ -247,12 +247,12 @@ class TwitterApi
 	}
 
 	/**
-	 * Parse the response string from an oAuth token request
+	 * Parse the response string from an oAuth request
 	 *
 	 * @param string $response
 	 * @return object
 	 */
-	private function parse_oauth_token_request_response(string $response): object
+	private function parse_oauth_request_response(string $response): object
 	{
 		$return = [];
 		parse_str($response, $return);
