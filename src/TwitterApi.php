@@ -147,9 +147,7 @@ class TwitterApi
 
 		if ($data) {
 			if ($oauth_token_request) {
-				$return = [];
-				parse_str($data, $return);
-				$return = (object)$return;
+				$return = $this->parse_oauth_token_request_response($data);
 			} else {
 				$return = json_decode($data, false);
 				if (json_last_error() !== JSON_ERROR_NONE) {
@@ -240,5 +238,18 @@ class TwitterApi
 		}
 
 		return 'Authorization: OAuth ' . implode(', ', $data);
+	}
+
+	/**
+	 * Parse the response string from an oAuth token request
+	 *
+	 * @param string $response
+	 * @return object
+	 */
+	private function parse_oauth_token_request_response($response): object
+	{
+		$return = [];
+		parse_str($response, $return);
+		return (object)$return;
 	}
 }
