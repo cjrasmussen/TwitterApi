@@ -89,7 +89,9 @@ class TwitterApi
 			$type = 'POST';
 		}
 
-		if ($request === 'oauth/request_token') {
+		$oauth_token_request = ($request === 'oauth/request_token');
+
+		if ($oauth_token_request) {
 			// WE CAN'T HAVE USER DATA FOR THIS CALL, WILL NEED TO RE-AUTH
 			unset($this->user_token);
 			unset($this->user_secret);
@@ -144,9 +146,15 @@ class TwitterApi
 		$data = curl_exec($c);
 
 		if ($data) {
-			$return = json_decode($data, false);
-			if (json_last_error() !== JSON_ERROR_NONE) {
-				throw new RuntimeException('API response was not valid JSON');
+			if ($oauth_token_request) {
+				$return = [];
+				parse_str($data, $return);
+				$return = (object)$return;
+			} else {
+				$return = json_decode($data, false);
+				if (json_last_error() !== JSON_ERROR_NONE) {
+					throw new RuntimeException('API response was not valid JSON');
+				}
 			}
 		} else {
 			// THE TWITTER API HAS A COUPLE CALLS THAT DON'T RETURN ANYTHING, RELYING INSTEAD ON THE HTTP RESPONSE CODE
