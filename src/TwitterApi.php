@@ -19,9 +19,9 @@ class TwitterApi
 
 	private string $application_key;
 	private string $application_secret;
-	private ?string $user_token = null;
-	private ?string $user_secret = null;
-	private ?string $bearer_token = null;
+	private ?string $user_token;
+	private ?string $user_secret;
+	private ?string $bearer_token;
 	private int $auth_type;
 	private ?array $oauth;
 	private ?array $args;
@@ -31,6 +31,10 @@ class TwitterApi
 		$this->application_key = $application_key;
 		$this->application_secret = $application_secret;
 		$this->auth_type = self::AUTH_TYPE_BASIC;
+
+		$this->user_token = null;
+		$this->user_secret = null;
+		$this->bearer_token = null;
 	}
 
 	/**
@@ -98,8 +102,7 @@ class TwitterApi
 
 		if ($oauth_token_request) {
 			// WE CAN'T HAVE USER DATA FOR THIS CALL, WILL NEED TO RE-AUTH
-			unset($this->user_token);
-			unset($this->user_secret);
+			$this->user_token = $this->user_secret = null;
 			unset($this->oauth['oauth_token']);
 		}
 
