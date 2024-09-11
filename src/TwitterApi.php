@@ -149,6 +149,8 @@ class TwitterApi
 			} elseif ($type !== 'GET') {
 				curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($this->args));
 			}
+		} elseif ($type === 'POST') {
+			curl_setopt($c, CURLOPT_POSTFIELDS, null);
 		}
 
 		$data = curl_exec($c);
