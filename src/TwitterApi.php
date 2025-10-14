@@ -91,14 +91,16 @@ class TwitterApi
 	{
 		$request = trim($request, ' /');
 		$this->args = (is_array($args)) ? $args : [$args];
-		$domain = (strpos($request, 'upload') !== false) ? self::TWITTER_API_URL_UPLOAD : self::TWITTER_API_URL_PRIMARY;
-		$full_url = $base_url = $domain . $request;
 
 		if ($multipart) {
 			$type = 'POST';
 		}
 
 		$oauth_request = (strpos($request, 'oauth/') === 0);
+		$upload_request = (($type === 'POST') && (strpos($request, 'media/') !== false));
+
+		$domain = ($upload_request) ? self::TWITTER_API_URL_UPLOAD : self::TWITTER_API_URL_PRIMARY;
+		$full_url = $base_url = $domain . $request;
 
 		if ($oauth_request) {
 			// WE CAN'T HAVE USER DATA FOR THIS CALL, WILL NEED TO RE-AUTH
